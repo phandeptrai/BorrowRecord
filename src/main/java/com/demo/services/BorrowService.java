@@ -15,6 +15,9 @@ public class BorrowService {
 	 @Autowired
 	    private BorrowRepository borrowRepository;
 
+	 @Autowired
+	 private ValidationService validationService;
+
 		public List<BorrowRecord> getAllBorrowRecords() {
 			return borrowRepository.findAll();
 		}
@@ -24,6 +27,10 @@ public class BorrowService {
 		}
 
 		public BorrowRecord createBorrowRecord(BorrowRecord borrowRecord) {
+			if (borrowRecord == null || borrowRecord.getUserId() == null || borrowRecord.getBookId() == null) {
+				throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST, "userId and bookId are required");
+			}
+			validationService.assertUserAndBookExist(borrowRecord.getUserId(), borrowRecord.getBookId());
 			return borrowRepository.save(borrowRecord);
 		}
 
